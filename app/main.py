@@ -1,3 +1,4 @@
+import asyncio
 from asyncio.log import logger
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Query, Depends
@@ -6,8 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from datetime import date
 from pydantic import BaseModel
+from app.admin.views import BookingsAdmin, UsersAdmin
 from app.config import settings
-
+from sqladmin import Admin, ModelView
+from app.database import engine
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
@@ -16,12 +19,46 @@ from redis import asyncio as aioredis
 from app.bookings.router import router as router_bookings
 from app.hotels.router import router as router_hotels
 from app.hotels.rooms.router import router as router_rooms
+from app.users.models import Users
 from app.users.router import router_users, router_auth
 
 from app.pages.router import router as router_pages
 from app.images.router import router as router_images
 
-app = FastAPI()
+
+async def get_data():
+    data = await asyncio.sleep(3)
+
+async def get_cache():
+    while True:
+        await get_data()
+        await asyncio.sleep(60*5)
+
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # при запуске
+    redis = aioredis.from_url(
+        f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
+        encoding="utf8",
+        decode_responses=True,
+    )
+    FastAPICache.init(RedisBackend(redis), prefix="cache")
+    yield
+
+app = FastAPI(lifespan=lifespan)
+
+
+admin = Admin(app, engine)
+
+
+admin.add_view(UsersAdmin)
+
+
+admin.add_view(BookingsAdmin)
+
+
 
 app.mount("/static", StaticFiles(directory="app/static"), "static")
 
@@ -51,16 +88,6 @@ app.add_middleware(
 )
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # при запуске
-    redis = aioredis.from_url(
-        f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
-        encoding="utf8",
-        decode_responses=True,
-    )
-    FastAPICache.init(RedisBackend(redis), prefix="cache")
-    yield
-    # при выключении
+
 
 
