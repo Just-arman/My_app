@@ -16,5 +16,5 @@ async def get_rooms_by_time(
     date_from: date,
     date_to: date,
 ) -> List[SRoomInfo]:
-    rooms = await RoomDAO.find_all(hotel_id, date_from, date_to)
+    rooms = await RoomDAO.search_for_rooms(hotel_id, date_from, date_to)
     return rooms

@@ -76,19 +76,3 @@ class HotelDAO(BaseDAO):
             # logger.debug(get_hotels_with_rooms.compile(engine, compile_kwargs={"literal_binds": True}))
             hotels_with_rooms = await session.execute(get_hotels_with_rooms)
             return hotels_with_rooms.mappings().all()
-
-
-    """
-    Пример эндпоинта: /hotels/Алтай.
-    HTTP метод: GET.
-    HTTP код ответа: 200.
-    Описание: возвращает список отелей по заданным параметрам, причем в отеле должен быть минимум 1 свободный номер.
-    Нужно быть авторизованным: нет.
-    Параметры: параметр пути location и параметры запроса date_from, date_to.
-    Ответ пользователю: для каждого отеля должно быть указано: id, name, location, services, rooms_quantity, image_id, rooms_left (количество оставшихся номеров).
-
-    Примечание к этому эндпоинту: в разных источниках можно встретить разную реализацию поиска 
-    по местоположению (location): где-то это параметр пути (как у нас), а где-то параметр запроса. Вы можете самостоятельно 
-    принять решение относительно этого параметра и поместить его либо в сам URL либо поместить рядом с параметрами date_from и date_to.
-
-    """
