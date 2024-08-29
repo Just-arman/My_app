@@ -1,10 +1,10 @@
-from httpx import AsyncClient
 import pytest
+from httpx import AsyncClient
 
 
 @pytest.mark.parametrize("email,password,status_code", [
     ("kot@pes.com", "kotopes", 200),
-    ("kot@pes.com", "kotopes", 409),
+    ("kot@pes.com", "kot0pes", 409),
     ("pes@kot.com", "pesokot", 200),
 ])
 async def test_register_user(email, password, status_code, ac: AsyncClient):
